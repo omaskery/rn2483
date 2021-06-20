@@ -7,10 +7,15 @@ import (
 	"github.com/omaskery/rn2483"
 )
 
+// SysState holds the state of the fake device in relation to sys commands
 type SysState struct {
+	// FirmwareVersion is the raw version information returned by several sys commands
 	FirmwareVersion string
-	GPIO            map[rn2483.PinName]bool
-	NVM             []byte
+
+	// GPIO holds the current state of all GPIO outputs
+	GPIO map[rn2483.PinName]bool
+	// NVM holds the current state of all user NVM data
+	NVM []byte
 }
 
 func (s *SysState) ensureDefaults() {
@@ -33,6 +38,7 @@ func (s *SysState) ensureDefaults() {
 	}
 }
 
+// ReadNVM retrieves a single byte of data from user NVM
 func (s *SysState) ReadNVM(address uint16) (byte, error) {
 	if address < rn2483.UserNVMStart {
 		return 0, fmt.Errorf("address out of bounds (%x before %x)", address, rn2483.UserNVMStart)
@@ -45,6 +51,7 @@ func (s *SysState) ReadNVM(address uint16) (byte, error) {
 	return s.NVM[index], nil
 }
 
+// WriteNVM writes a single byte of data to user NVM
 func (s *SysState) WriteNVM(address uint16, value byte) error {
 	if address < rn2483.UserNVMStart {
 		return fmt.Errorf("address out of bounds (%x before %x)", address, rn2483.UserNVMStart)
@@ -70,7 +77,7 @@ func (d *Device) processSysCommand(ctx *commandContext, params []string) error {
 	case "set":
 		return d.processSysSetCommand(ctx, params[1:])
 	case "reset":
-		return ctx.WriteResponse(d.Sys.FirmwareVersion)
+		return ctx.writeResponse(d.Sys.FirmwareVersion)
 	default:
 		return invalidParam(ctx)
 	}
@@ -138,10 +145,10 @@ func (d *Device) processSysGetCommand(ctx *commandContext, params []string) erro
 
 	switch params[0] {
 	case "ver":
-		return ctx.WriteResponse(d.Sys.FirmwareVersion)
+		return ctx.writeResponse(d.Sys.FirmwareVersion)
 	case "vdd":
 		voltage := 3304 + (rand.Intn(8) - 4)
-		return ctx.WriteResponse("%d", voltage)
+		return ctx.writeResponse("%d", voltage)
 	case "nvm":
 		if len(params) < 2 {
 			return invalidParam(ctx)
@@ -157,7 +164,7 @@ func (d *Device) processSysGetCommand(ctx *commandContext, params []string) erro
 			return invalidParam(ctx)
 		}
 
-		return ctx.WriteResponse(rn2483.ByteToHex(value))
+		return ctx.writeResponse(rn2483.ByteToHex(value))
 	default:
 		return invalidParam(ctx)
 	}

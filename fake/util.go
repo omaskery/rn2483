@@ -1,9 +1,9 @@
 package fake
 
 func invalidParam(ctx *commandContext) error {
-	return ctx.WriteResponse("invalid_param")
+	return ctx.writeResponse("invalid_param")
 }
 
 func ok(ctx *commandContext) error {
-	return ctx.WriteResponse("ok")
+	return ctx.writeResponse("ok")
 }

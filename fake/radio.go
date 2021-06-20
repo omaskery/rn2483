@@ -8,10 +8,16 @@ import (
 	"github.com/omaskery/rn2483"
 )
 
+// RadioState holds the state of the fake device in relation to radio commands
 type RadioState struct {
+	// Power is the configured transmit power
 	Power int
 
+	// Tx is a callback invoked when the radio is asked to transmit a packet of data
 	Tx func(d *Device, packet []byte) error
+	// Rx is a callback invoked when the radio attempts to receive a packet of data, the function should
+	// return a channel that may eventually yield a packet of data
+	// TODO: should probably add a mechanism for the caller to release any resources associated with the callee
 	Rx func(d *Device) <-chan []byte
 }
 
@@ -55,13 +61,13 @@ func (d *Device) processRadioTxCommand(ctx *commandContext, params []string) err
 	if d.Radio.Tx != nil {
 		if err := d.Radio.Tx(d, data); err != nil {
 			d.logger.Error(err, "radio transmit function returned an error")
-			return ctx.WriteResponse("radio_err")
+			return ctx.writeResponse("radio_err")
 		}
 	} else {
 		d.logger.Info("no transmit function registered: dropping transmission")
 	}
 
-	return ctx.WriteResponse("radio_tx_ok")
+	return ctx.writeResponse("radio_tx_ok")
 }
 
 func (d *Device) processRadioRxCommand(ctx *commandContext, params []string) error {
@@ -88,9 +94,9 @@ func (d *Device) processRadioRxCommand(ctx *commandContext, params []string) err
 
 	select {
 	case <-time.After(time.Duration(rxWindow) * time.Millisecond):
-		return ctx.WriteResponse("radio_err")
+		return ctx.writeResponse("radio_err")
 	case data := <-rxChannel:
-		return ctx.WriteResponse("radio_rx %s", rn2483.BytesToHex(data))
+		return ctx.writeResponse("radio_rx %s", rn2483.BytesToHex(data))
 	}
 }
 
@@ -101,7 +107,7 @@ func (d *Device) processRadioGetCommand(ctx *commandContext, params []string) er
 
 	switch params[0] {
 	case "pwr":
-		return ctx.WriteResponse("%d", d.Radio.Power)
+		return ctx.writeResponse("%d", d.Radio.Power)
 	default:
 		return invalidParam(ctx)
 	}

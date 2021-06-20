@@ -1,5 +1,6 @@
 package rn2483
 
+// PinName identifies the GPIO pin that may be asserted
 type PinName string
 
 const (
@@ -24,6 +25,7 @@ const (
 	PinTEST1   PinName = "TEST1"
 )
 
+// AllPins lists all the GPIO pins that can be asserted
 var AllPins = []PinName{
 	PinGPIO00,
 	PinGPIO01,
@@ -46,6 +48,7 @@ var AllPins = []PinName{
 	PinTEST1,
 }
 
+// SetDigitalGPIO sets the specified GPIO pin to on or off
 func (d *Device) SetDigitalGPIO(gpio PinName, value bool) error {
 	return d.ExecuteCommandCheckedStrict("sys set pindig %s %d", string(gpio), encodeBoolean(value))
 }

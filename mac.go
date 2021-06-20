@@ -6,6 +6,7 @@ import (
 	"time"
 )
 
+// PauseMAC pauses the LoRaWAN stack to allow transceiver configuration.
 func (d *Device) PauseMAC() (time.Duration, error) {
 	line, err := d.ExecuteCommandChecked("mac pause")
 	if err != nil {

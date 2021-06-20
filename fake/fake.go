@@ -12,14 +12,18 @@ import (
 	"github.com/omaskery/rn2483"
 )
 
+// Device is a fake RN2483, satisfying the io.ReadWriteCloser interface expected by rn2483.Device for its serial device
 type Device struct {
 	logger  logr.Logger
 	writer  *io.PipeWriter
 	reader  *io.PipeReader
 	stopped chan error
 
-	Sys   SysState
-	Mac   MacState
+	// Sys is state of the device as relevent to sys commands
+	Sys SysState
+	// Mac is state of the device as relevent to mac commands
+	Mac MacState
+	// Radio is state of the device as relevent to radio commands
 	Radio RadioState
 }
 
@@ -29,7 +33,7 @@ type commandContext struct {
 	responseWriter *io.PipeWriter
 }
 
-func (c *commandContext) WriteResponse(format string, a ...interface{}) error {
+func (c *commandContext) writeResponse(format string, a ...interface{}) error {
 	response := fmt.Sprintf(format, a...)
 	c.logger.Info("writing response", "response", response)
 	if _, err := fmt.Fprintf(c.responseWriter, "%s\r\n", response); err != nil {
@@ -77,10 +81,12 @@ func (d *Device) processCommand(ctx *commandContext) error {
 	}
 }
 
+// Config allows for configuring the fake Device's behaviour
 type Config struct {
 	Logger logr.Logger
 }
 
+// New creates a new fake RN2483 device
 func New(cfg Config) *Device {
 	logger := logr.Discard()
 	if cfg.Logger != nil {
@@ -113,6 +119,8 @@ func New(cfg Config) *Device {
 	return d
 }
 
+// NewFakeDevice creates a fake RN2483 and configures a rn2483.Device to use the fake device
+// Primarily for convenience in unit tests.
 func NewFakeDevice(cfg Config) (*Device, *rn2483.Device) {
 	fake := New(cfg)
 	device := rn2483.New(rn2483.Config{
@@ -124,14 +132,17 @@ func NewFakeDevice(cfg Config) (*Device, *rn2483.Device) {
 
 var _ io.ReadWriteCloser = (*Device)(nil)
 
+// Read implements the io.ReadWriteCloser interface
 func (d *Device) Read(p []byte) (n int, err error) {
 	return d.reader.Read(p)
 }
 
+// Write implements the io.ReadWriteCloser interface
 func (d *Device) Write(p []byte) (n int, err error) {
 	return d.writer.Write(p)
 }
 
+// Close implements the io.ReadWriteCloser interface
 func (d *Device) Close() error {
 	if err := d.writer.Close(); err != nil {
 		return fmt.Errorf("error closing command writer: %w", err)
