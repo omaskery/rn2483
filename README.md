@@ -1,4 +1,4 @@
-# rn2483
+# rn2483 [![Go Reference](https://pkg.go.dev/badge/github.com/omaskery/rn2483.svg)](https://pkg.go.dev/github.com/omaskery/rn2483) ![build status](https://github.com/omaskery/rn2483/actions/workflows/go.yml/badge.svg)
 
 Go library for interfacing with [RN2483][RN2483 product page] and [RN2903][RN2903 product page] LoRa modules via their
 serial interface, particularly [LoStik][LoStik product page] USB devices.
