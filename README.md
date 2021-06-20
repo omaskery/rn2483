@@ -25,7 +25,6 @@ serial interface, particularly [LoStik][LoStik product page] USB devices.
 
 ## Todo
 
-- Add documentation comments
 - Add implementations for more commands
 
 ## References
