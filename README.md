@@ -21,12 +21,11 @@ serial interface, particularly [LoStik][LoStik product page] USB devices.
     - [x] `radio tx` and `radio rx`
     - [x] generic `radio set <x> <y>` and `radio get <x>` commands
     - [x] `radio set pwr`
+- [x] Simple fake implementation for local development and automated testing
 
 ## Todo
 
 - Add documentation comments
-- Add a fake RN2483 implementation for convenient development and automated testing
-- Add unit tests
 - Add implementations for more commands
 
 ## References
