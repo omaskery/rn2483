@@ -71,8 +71,8 @@ func errMain(logger logr.Logger) error {
 
 	defer func() {
 		if errs := multierr.Combine(
-			device.SetDigitalGPIO(rn2483.GPIO10, false),
-			device.SetDigitalGPIO(rn2483.GPIO11, false),
+			device.SetDigitalGPIO(rn2483.PinGPIO10, false),
+			device.SetDigitalGPIO(rn2483.PinGPIO11, false),
 		); errs != nil {
 			logger.Error(err, "error turning off user LEDs")
 		}
@@ -80,10 +80,10 @@ func errMain(logger logr.Logger) error {
 
 	ledState := true
 	for {
-		if err := device.SetDigitalGPIO(rn2483.GPIO10, ledState); err != nil {
+		if err := device.SetDigitalGPIO(rn2483.PinGPIO10, ledState); err != nil {
 			return fmt.Errorf("error toggling user LED (GPIO10): %v", err)
 		}
-		if err := device.SetDigitalGPIO(rn2483.GPIO11, !ledState); err != nil {
+		if err := device.SetDigitalGPIO(rn2483.PinGPIO11, !ledState); err != nil {
 			return fmt.Errorf("error toggling user LED (GPIO11): %v", err)
 		}
 		ledState = !ledState

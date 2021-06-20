@@ -15,7 +15,7 @@ func (v Voltage) Millivolts() uint16 {
 }
 
 func (d *Device) GetVDD() (Voltage, error) {
-	line, err := d.ExecuteCommand("sys get vdd")
+	line, err := d.ExecuteCommandChecked("sys get vdd")
 	if err != nil {
 		return 0, err
 	}

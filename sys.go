@@ -7,11 +7,11 @@ import (
 )
 
 func (d *Device) Sleep(duration time.Duration) error {
-	return d.ExecuteCommandChecked("sys sleep %d", duration.Milliseconds())
+	return d.ExecuteCommandCheckedStrict("sys sleep %d", duration.Milliseconds())
 }
 
 func (d *Device) GetHWEUI() (string, error) {
-	return d.ExecuteCommand("sys get hweui")
+	return d.ExecuteCommandChecked("sys get hweui")
 }
 
 var (
@@ -91,7 +91,7 @@ func (d *Device) GetVersion() (*FirmwareVersion, error) {
 }
 
 func (d *Device) executeCommandReturningFirmwareVersion(format string, a ...interface{}) (*FirmwareVersion, error) {
-	line, err := d.ExecuteCommand(format, a...)
+	line, err := d.ExecuteCommandChecked(format, a...)
 	if err != nil {
 		return nil, err
 	}

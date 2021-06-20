@@ -66,12 +66,12 @@ func main() {
 		}
 	}()
 
-	cmdCtx := cmdContext{
+	ctx := cmdContext{
 		Logger: logger,
 		Device: device,
 	}
 
-	if err := cmd.Run(cmdCtx); err != nil {
+	if err := cmd.Run(ctx); err != nil {
 		logger.Error(err, "program exiting with error")
 		os.Exit(1)
 	}
@@ -90,7 +90,7 @@ type cmdRead struct {
 	Format outputFormat `kong:"default='raw',choice='raw,hexdump',help='choose how the output is presented',env='FORMAT'"`
 }
 
-func (cmd *cmdRead) Run(cmdCtx cmdContext) error {
+func (cmd *cmdRead) Run(ctx cmdContext) error {
 	from := rn2483.UserNVMStart
 	if cmd.From != 0 {
 		from = cmd.From
@@ -101,8 +101,8 @@ func (cmd *cmdRead) Run(cmdCtx cmdContext) error {
 		length = cmd.Length
 	}
 
-	cmdCtx.Logger.Info("reading from NVM", "start-address", rn2483.UInt16ToHex(from), "length", rn2483.UInt16ToHex(length))
-	data, err := rn2483.ReadNVM(cmdCtx.Device, from, length)
+	ctx.Logger.Info("reading from NVM", "start-address", rn2483.UInt16ToHex(from), "length", rn2483.UInt16ToHex(length))
+	data, err := rn2483.ReadNVM(ctx.Device, from, length)
 	if err != nil {
 		return err
 	}
@@ -124,7 +124,7 @@ type cmdWrite struct {
 	Data string `kong:"type='existingfile',default='-',help='file containing data to write to NVM',env='DATA'"`
 }
 
-func (cmd *cmdWrite) Run(cmdCtx cmdContext) error {
+func (cmd *cmdWrite) Run(ctx cmdContext) error {
 	var data []byte
 	var err error
 
@@ -155,7 +155,7 @@ func (cmd *cmdWrite) Run(cmdCtx cmdContext) error {
 		)
 	}
 
-	if err := rn2483.WriteNVM(cmdCtx.Device, writeStart, data); err != nil {
+	if err := rn2483.WriteNVM(ctx.Device, writeStart, data); err != nil {
 		return err
 	}
 

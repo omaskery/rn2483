@@ -24,6 +24,7 @@ serial interface, particularly [LoStik][LoStik product page] USB devices.
 
 ## Todo
 
+- Add documentation comments
 - Add a fake RN2483 implementation for convenient development and automated testing
 - Add unit tests
 - Add implementations for more commands

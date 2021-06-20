@@ -76,7 +76,6 @@ func errMain(logger logr.Logger) error {
 		switch tx {
 		case "quit":
 			break
-		case "":
 		default:
 			if _, err := fmt.Fprintf(s, "%s\r\n", strings.TrimSpace(tx)); err != nil {
 				fmt.Printf("ERR: %v\n", err)

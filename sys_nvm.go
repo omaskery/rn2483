@@ -10,22 +10,21 @@ const (
 	UserNVMEnd   uint16 = 0x3FF
 )
 
+var (
+	UserNVMLength = (UserNVMEnd + 1) - UserNVMStart
+)
+
 func (d *Device) WriteNVM(address uint16, value byte) error {
-	return d.ExecuteCommandChecked("sys set nvm %s %s", UInt16ToHex(address), ByteToHex(value))
+	return d.ExecuteCommandCheckedStrict("sys set nvm %s %s", UInt16ToHex(address), ByteToHex(value))
 }
 
 func (d *Device) ReadNVM(address uint16) (byte, error) {
-	line, err := d.ExecuteCommand("sys get nvm %s", UInt16ToHex(address))
+	line, err := d.ExecuteCommandChecked("sys get nvm %s", UInt16ToHex(address))
 	if err != nil {
 		return 0, err
 	}
 
-	switch line {
-	case "invalid_param":
-		return 0, ErrInvalidParam
-	default:
-		return HexToByte(PadHexToEvenLength(line))
-	}
+	return HexToByte(PadHexToEvenLength(line))
 }
 
 func ReadNVM(d *Device, start, amount uint16) ([]byte, error) {

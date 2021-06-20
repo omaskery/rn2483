@@ -82,27 +82,44 @@ func (d *Device) ExecuteCommand(format string, a ...interface{}) (string, error)
 	return line, nil
 }
 
-func (d *Device) ExecuteCommandChecked(format string, a ...interface{}) error {
+func (d *Device) ExecuteCommandChecked(format string, a ...interface{}) (string, error) {
+	line, err := d.ExecuteCommand(format, a...)
+	if err != nil {
+		return "", err
+	}
+
+	if err := CheckCommandResponse(line, true); err != nil {
+		return "", err
+	}
+
+	return line, nil
+}
+
+func (d *Device) ExecuteCommandCheckedStrict(format string, a ...interface{}) error {
 	line, err := d.ExecuteCommand(format, a...)
 	if err != nil {
 		return err
 	}
 
-	if err := CheckCommandResponse(line); err != nil {
+	if err := CheckCommandResponse(line, false); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func CheckCommandResponse(line string) error {
-	switch line {
-	case "ok":
-	case "invalid_param":
-		return ErrInvalidParam
-	case "busy":
-		return ErrTransceiverBusy
-	default:
+func CheckCommandResponse(line string, allowUnknown bool) error {
+	mapping := map[string]error{
+		"ok":            nil,
+		"invalid_param": ErrInvalidParam,
+		"busy":          ErrTransceiverBusy,
+	}
+
+	if err, ok := mapping[line]; ok {
+		return err
+	}
+
+	if !allowUnknown {
 		return fmt.Errorf("%w: %s", ErrUnknown, line)
 	}
 

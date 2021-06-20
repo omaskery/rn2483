@@ -37,6 +37,27 @@ func HexToBytes(h string) ([]byte, error) {
 	return hex.DecodeString(h)
 }
 
+func HexToUInt16(h string) (uint16, error) {
+	b, err := HexToBytes(h)
+	if err != nil {
+		return 0, err
+	}
+
+	var result uint16
+	if err := binary.Read(bytes.NewReader(b), binary.BigEndian, &result); err != nil {
+		return 0, err
+	}
+
+	return result, nil
+}
+
+func PadHex(h string, digits int) string {
+	for len(h) < digits {
+		h = "0" + h
+	}
+	return h
+}
+
 func PadHexToEvenLength(h string) string {
 	if len(h) % 2 == 0 {
 		return h

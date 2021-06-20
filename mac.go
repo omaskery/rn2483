@@ -7,7 +7,7 @@ import (
 )
 
 func (d *Device) PauseMAC() (time.Duration, error) {
-	line, err := d.ExecuteCommand("mac pause")
+	line, err := d.ExecuteCommandChecked("mac pause")
 	if err != nil {
 		return 0, err
 	}
