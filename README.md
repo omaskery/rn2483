@@ -10,8 +10,8 @@ serial interface, particularly [LoStik][LoStik product page] USB devices.
     - [x] `rn2483.(Device).ReadResponse` for reading responses
     - [x] `rn2483.CheckCommandResponse` for validating common command responses
     - [x] `rn2483.(Device).ExecuteCommand` as a common building block for commands
-    - [x] `rn2483.(Device).ExecuteCommandChecked` as a common building block for simple commands with easily validated
-      responses
+    - [x] `rn2483.(Device).ExecuteCommandChecked` and `rn2483.(Device).ExecuteCommandCheckedStrict` as a common building
+      block for simple commands with easily validated responses
 - [x] All `sys` commands
     - [ ] purposely excludes `sys eraseFW` as it seemed too dangerous to make convenient, easy to implement manually
       using the building blocks provided above
