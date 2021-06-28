@@ -13,6 +13,9 @@ type RadioState struct {
 	// Power is the configured transmit power
 	Power int
 
+	// WatchDogTimer is how long a radio operation will last before timing out
+	WatchDogTimer time.Duration
+
 	// Tx is a callback invoked when the radio is asked to transmit a packet of data
 	Tx func(d *Device, packet []byte) error
 	// Rx is a callback invoked when the radio attempts to receive a packet of data, the function should
@@ -23,6 +26,7 @@ type RadioState struct {
 
 func (r *RadioState) ensureDefaults() {
 	r.Power = 10
+	r.WatchDogTimer = 15 * time.Second
 }
 
 func (d *Device) processRadioCommand(ctx *commandContext, params []string) error {
@@ -85,15 +89,29 @@ func (d *Device) processRadioRxCommand(ctx *commandContext, params []string) err
 	}
 
 	var rxChannel <-chan []byte
-
 	if d.Radio.Rx != nil {
 		rxChannel = d.Radio.Rx(d)
 	} else {
 		d.logger.Info("no receive function registered: will never receive data")
 	}
 
+	// TODO: work out how the rxWindow + transmit mode actually maps into time, if at all, in LoRa modulation
+	rxWindowTimeout := time.Duration(rxWindow) * time.Millisecond
+	timeoutDuration := rxWindowTimeout
+	if d.Radio.WatchDogTimer != 0 && timeoutDuration >= d.Radio.WatchDogTimer {
+		timeoutDuration = d.Radio.WatchDogTimer
+	}
+
+	var timeoutChannel <-chan time.Time
+	switch rxWindow {
+	case 0:
+		timeoutChannel = nil
+	default:
+		timeoutChannel = time.After(timeoutDuration)
+	}
+
 	select {
-	case <-time.After(time.Duration(rxWindow) * time.Millisecond):
+	case <-timeoutChannel:
 		return ctx.writeResponse("radio_err")
 	case data := <-rxChannel:
 		return ctx.writeResponse("radio_rx %s", rn2483.BytesToHex(data))

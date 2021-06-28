@@ -1,10 +1,7 @@
 package rn2483_test
 
 import (
-	"bytes"
-	"errors"
 	"fmt"
-	"log"
 	"testing"
 	"time"
 
@@ -16,6 +13,7 @@ import (
 
 	"github.com/omaskery/rn2483"
 	"github.com/omaskery/rn2483/fake"
+	"github.com/omaskery/rn2483/testutils"
 )
 
 type testContext struct {
@@ -25,7 +23,7 @@ type testContext struct {
 }
 
 func prepareTestContext(t *testing.T) *testContext {
-	logger := createTestLogger(t)
+	logger := testutils.CreateTestLogger(t)
 	stdr.SetVerbosity(100)
 
 	f := fake.New(fake.Config{
@@ -127,51 +125,13 @@ func TestSys(t *testing.T) {
 				address := address
 				o.Spec(fmt.Sprintf("address 0x%03X", address), func(t *testing.T, ctx *testContext) {
 					_, err := ctx.device.ReadNVM(address)
-					Expect(t, err).To(MatchError(rn2483.ErrInvalidParam))
+					Expect(t, err).To(testutils.MatchError(rn2483.ErrInvalidParam))
 
 					err = ctx.device.WriteNVM(address, 0x00)
-					Expect(t, err).To(MatchError(rn2483.ErrInvalidParam))
+					Expect(t, err).To(testutils.MatchError(rn2483.ErrInvalidParam))
 				})
 			}
 		})
 	})
 }
 
-type errorMatcher struct {
-	expected error
-}
-
-func MatchError(err error) *errorMatcher {
-	return &errorMatcher{
-		expected: err,
-	}
-}
-
-var _ Matcher = (*errorMatcher)(nil)
-
-func (e errorMatcher) Match(actual interface{}) (resultValue interface{}, err error) {
-	actualErr, ok := actual.(error)
-	if !ok {
-		return actual, fmt.Errorf("expected an error type, got type %T", actual)
-	}
-
-	if !errors.Is(actualErr, e.expected) {
-		return actual, fmt.Errorf("expected error type %T, got type %T", e.expected, actualErr)
-	}
-
-	return actual, nil
-}
-
-func createTestLogger(t *testing.T) logr.Logger {
-	buffer := &bytes.Buffer{}
-	t.Cleanup(func() {
-		if t.Failed() {
-			fmt.Println("dumping log output for failed test:")
-			fmt.Print(buffer)
-		}
-	})
-
-	logger := stdr.New(log.New(buffer, "", log.LstdFlags)).WithName(t.Name())
-
-	return logger
-}

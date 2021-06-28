@@ -5,6 +5,7 @@ go 1.16
 require (
 	github.com/go-logr/logr v0.4.0
 	github.com/go-logr/stdr v0.4.0
+	github.com/jonboulle/clockwork v0.2.2
 	github.com/poy/onpar v1.1.2
 	go.uber.org/multierr v1.7.0
 )
