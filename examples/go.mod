@@ -12,5 +12,5 @@ require (
 	github.com/jacobsa/go-serial v0.0.0-20180131005756-15cf729a72d4
 	github.com/omaskery/rn2483 v0.0.0-00010101000000-000000000000
 	go.uber.org/multierr v1.7.0
-	golang.org/x/sys v0.0.0-20210616094352-59db8d763f22 // indirect
+	golang.org/x/sys v0.1.0 // indirect
 )
